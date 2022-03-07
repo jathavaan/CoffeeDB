@@ -1,0 +1,110 @@
+create table Country (
+	countryID integer not null,
+	name not null,
+	primary key (countryID)
+);
+
+create table Region (
+	regionID integer not null,
+	name varchar(45) not null,
+	countryID integer not null,
+	primary key (regionID),
+	foreign key (countryID) references Country (countryID)
+);
+
+create table User (
+	userID integer not null,
+	email varchar(45) not null,
+	password varchar(45) not null,
+	firstName varchar(45) not null,
+	surname varchar(45) not null,
+	countryID integer not null,
+	primary key (userID),
+	foreign key (countryID) references Country (countryID)
+);
+
+create table Farm (
+	farmID integer not null,
+	name varchar(45) not null,
+	regionID integer not null,
+	primary key (farmID),
+	foreign key (regionID) references Region (regionID)
+);
+
+create table Species (
+	speciesID integer not null,
+	name varchar(45) not null,
+	primary key (speciesID)
+);
+
+create table Bean (
+	beanID integer not null,
+	name varchar(45) not null,
+	speciesID integer not null,
+	primary key (beanID),
+	foreign key (speciesID) references Species (speciesID)
+);
+
+create table ProcessingMethod (
+	processingMethodID integer not null,
+	name varchar (45) not null,
+	description text,
+	primary key (processingMethodID)
+);
+
+create table CoffeeParty (
+	coffeePartyID integer not null,
+	harvestYear integer not null,
+	kiloPrice integer not null,
+	processingMethodID integer not null,
+	producedFarmID integer not null,
+	primary key (coffeePartyID),
+	foreign key (processingMethodID) references ProcessingMethod (processingMethodID),
+	foreign key (producedFarmID) references Farm (farmID)
+);
+
+create table CoffeeRoastery (
+	roastaryID integer not null,
+	name varchar(45) not null,
+	primary key (roastaryID)
+);
+
+create table RoastedCoffee (
+	roastedCoffeeID integer not null,
+	roastnessDegree varchar(45) not null,
+	kiloPrice integer not null,
+	roastaryID integer not null,
+	coffeePartyID integer not null,
+	roastedDate date not null,
+	primary key (roastedCoffeeID),
+	foreign key (roastaryID) references CoffeeRoastery (roastaryID),
+	foreign key (coffeePartyID) references CoffeeParty (coffeePartyID)
+);
+
+create table Tasting (
+	tastingID integer not null,
+	tasteNotes text,
+	points integer,
+	tastingDate date,
+	userID integer not null,
+	roastedCoffeeID integer not null,
+	primary key (tastingID),
+	foreign key (userID) references User (userID),
+	foreign key (roastedCoffeeID) references RoastedCoffee (roastedCoffeeID)
+);
+
+create table FarmHasBean (
+	farmID integer not null,
+	beanID integer not null,
+	primary key (farmID, beanID),
+	foreign key (farmID) references Farm (farmID),
+	foreign key (beanID) references Bean (beanID)
+);
+
+create table CoffeePartyHasBean (
+	coffeePartyID integer not null,
+	beanID integer not null,
+	primary key (coffeePartyID, beanID),
+	foreign key (coffeePartyID) references CoffeeParty (coffeePartyID),
+	foreign key (beanID) references Bean (beanID)
+);
