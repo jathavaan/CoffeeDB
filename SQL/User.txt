@@ -1,0 +1,10 @@
+create table User (
+	userID integer not null,
+	email varchar(45) not null,
+	password varchar(45) not null,
+	firstName varchar(45) not null,
+	surname varchar(45) not null,
+	countryID integer not null,
+	primary key (userID),
+	foreign key (countryID) references Country (countryID)
+);

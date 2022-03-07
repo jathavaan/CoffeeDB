@@ -1,0 +1,7 @@
+create table Bean (
+	beanID integer not null,
+	name varchar(45) not null,
+	speciesID integer not null,
+	primary key (beanID),
+	foreign key (speciesID) references Species (speciesID)
+);

@@ -1,0 +1,7 @@
+create table Region (
+	regionID integer not null,
+	name varchar(45) not null,
+	countryID integer not null,
+	primary key (regionID),
+	foreign key (countryID) references Country (countryID)
+);

@@ -1,0 +1,7 @@
+create table CoffePartyHasBean (
+	beanID integer not null,
+	coffeePartyID integer not null,
+	primary key (beanID, coffeePartyID),
+	foreign key (beanID) references Bean (beanID),
+	foreign key (coffeePartyID) references CoffeeParty (coffeePartyID)
+);
