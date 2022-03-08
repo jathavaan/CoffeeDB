@@ -1,0 +1,7 @@
+create table Farm (
+	farmID integer not null,
+	name varchar(45) not null,
+	regionID integer not null,
+	primary key (farmID),
+	foreign key (regionID) references Region (regionID)
+);

@@ -1,0 +1,10 @@
+create table RoastedCoffee (
+	roastedCoffeeID integer not null,
+	roastnessDegree varchar(45) not null,
+	kiloPrice integer not null,
+	roastaryID integer not null,
+	coffeePartyID integer not null,
+	primary key (roastedCoffeeID),
+	foreign key (roastaryID) references CoffeeRoastery (roastaryID),
+	foreign key (coffeePartyID) references CoffeePary (coffeePartyID)
+);
