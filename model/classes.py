@@ -1,4 +1,9 @@
+import datetime
+
+
 class User:
+    """This class need validation"""
+
     def __init__(self, userID: int, email: str, password: str, firstName: str, surname: str, countryID: int):
         self.__userID = None
         self.__email = None
@@ -145,30 +150,259 @@ class Farm:
 
 
 class CoffeeRoastery:
-    def __init__(self):
-        pass
+    def __init__(self, roasteryID: int, name: str):
+        self.__roasteryID = None
+        self.__name = None
+
+        self.setRoasteryID(roasteryID)
+        self.setName(name)
+
+    def getRoasteryID(self) -> int:
+        return self.__roasteryID
+
+    def setRoasteryID(self, roasteryID: int):
+        self.__roasteryID = roasteryID
+
+    def getName(self) -> str:
+        return self.__name
+
+    def setName(self, name: str):
+        self.__name = name
 
 
 class Species:
-    def __init__(self):
-        pass
+    def __init__(self, speciesID: int, name: str):
+        self.__speciesID = None
+        self.__name = None
+
+        self.setSpeciesID(speciesID)
+        self.setName(name)
+
+    def getSpeciesID(self) -> int:
+        return self.__speciesID
+
+    def setSpeciesID(self, speciesID: int):
+        self.__speciesID = speciesID
+
+    def getName(self) -> str:
+        return self.__name
+
+    def setName(self, name: str):
+        self.__name = name
 
 
 class RoastedCoffee:
-    def __init__(self):
-        pass
+    def __init__(self, roastedCoffeeID: int, roastnessDegree: str, kiloPrice: int, description: str, coffeePartyID: int,
+                 roastedDate: datetime.date, roasteryID: int):
+        self.__roastedCoffeeID = None
+        self.__roastnessDegree = None
+        self.__kiloPrice = None
+        self.__description = None
+        self.__coffeePartyID = None
+        self.__roastedDate = None
+        self.__roasteryID = None
 
+        self.setRoastedCoffeeID(roastedCoffeeID)
+        self.setRoastnessDegree(roastnessDegree)
+        self.setKiloPrice(kiloPrice)
+        self.setDescription(description)
+        self.setCoffeePartyID(coffeePartyID)
+        self.setRoastedDate(roastedDate)
+        self.setRoasteryID(roasteryID)
 
-class Bean:
-    def __init__(self):
-        pass
+    def getRoastedCoffeeID(self) -> int:
+        return self.__roastedCoffeeID
+
+    def setRoastedCoffeeID(self, roastedCoffeeID: int):
+        self.__roastedCoffeeID = roastedCoffeeID
+
+    def getRoastnessDegree(self) -> str:
+        return self.__roastnessDegree
+
+    def setRoastnessDegree(self, roastnessDegree: str):
+        self.__roastnessDegree = roastnessDegree
+
+    def getKiloPrice(self) -> float:
+        return self.__kiloPrice
+
+    def setKiloPrice(self, kiloPrice: float):
+        self.__kiloPrice = kiloPrice
+
+    def getDescription(self) -> str:
+        return self.__description
+
+    def setDescription(self, description: str):
+        self.__description = description
+
+    def getCoffeePartyID(self) -> int:
+        return self.__coffeePartyID
+
+    def setCoffeePartyID(self, coffeePartyID: int):
+        self.__coffeePartyID = coffeePartyID
+
+    def getRoastedDate(self) -> datetime.date:
+        return self.__roastedDate
+
+    def setRoastedDate(self, roastedDate: datetime.date):
+        self.__roastedDate = roastedDate
+
+    def getRoasteryID(self) -> int:
+        return self.__roasteryID
+
+    def setRoasteryID(self, roasteryID: int):
+        self.__roasteryID = roasteryID
+
+    class Bean:
+        def __init__(self, beanID: int, name: str, speciesID: int):
+            self.__beanID = None
+            self.__name = None
+            self.__speciesID = None
+
+            self.setBeanID(beanID)
+            self.setName(name)
+            self.setSpeciesID(speciesID)
+
+        def getBeanID(self) -> int:
+            return self.__beanID
+
+        def setBeanID(self, beanID: int):
+            self.__beanID = beanID
+
+        def getName(self) -> str:
+            return self.__name
+
+        def setName(self, name: str):
+            self.__name = name
+
+        def getSpeciesID(self) -> int:
+            return self.__speciesID
+
+        def setSpeciesID(self, speciesID: int):
+            self.__speciesID = speciesID
 
 
 class ProcessingMethod:
-    def __init__(self):
-        pass
+    def __init__(self, processingMethodID: int, name: str, description: str):
+        self.__processingMethodID = None
+        self.__name = None
+        self.__description = None
+
+        self.setProcessingMethodID(processingMethodID)
+        self.setName(name)
+        self.setDescription(description)
+
+    def getProcessingMethodID(self) -> int:
+        return self.__processingMethodID
+
+    def setProcessingMethodID(self, processingMethodID):
+        self.__processingMethodID = processingMethodID
+
+    def getName(self) -> str:
+        return self.__name
+
+    def setName(self, name: str):
+        self.__name = name
+
+    def getDescription(self) -> str:
+        return self.__description
+
+    def setDescription(self, description: str):
+        self.__description = description
 
 
 class Tasting:
-    def __init__(self):
-        pass
+    """This class needs validation"""
+
+    def __init__(self, tastingID: int, tasteNotes: str, points: int, tastingDate: datetime.date, userID: int,
+                 roastedCoffeeID: int):
+        self.__tastingID = None
+        self.__tasteNotes = None
+        self.__points = None
+        self.__tastingDate = None
+        self.__userID = None
+        self.__roastedCoffeeID = None
+
+        self.setTastingID(tastingID)
+        self.setTasteNotes(tasteNotes)
+        self.setPoints(points)
+        self.setTastingDate(tastingDate)
+        self.setUserID(userID)
+        self.setRoastedCoffeeID(roastedCoffeeID)
+
+    def getTastingID(self) -> int:
+        return self.__tastingID
+
+    def setTastingID(self, tastingID: int):
+        self.__tastingID = tastingID
+
+    def getTasteNotes(self) -> str:
+        return self.__tasteNotes
+
+    def setTasteNotes(self, tasteNotes: str):
+        self.__tasteNotes = tasteNotes
+
+    def getPoints(self) -> int:
+        return self.__points
+
+    def setPoints(self, points: int):
+        self.__points = points
+
+    def getTastingDate(self) -> datetime.date:
+        return self.__tastingDate
+
+    def setTastingDate(self, tastingDate: datetime.date):
+        self.__tastingDate = tastingDate
+
+    def getUserID(self) -> int:
+        return self.__userID
+
+    def setUserID(self, userID: int):
+        self.__userID = userID
+
+    def getRoastedCoffeeID(self) -> int:
+        return self.__roastedCoffeeID
+
+    def setRoastedCoffeeID(self, roastedCoffeeID: int):
+        self.__roastedCoffeeID = roastedCoffeeID
+
+
+class FarmHasBean:
+    def __init__(self, farmID: int, beanID: int):
+        self.__farmID = None
+        self.__beanID = None
+
+        self.setFarmID(farmID)
+        self.setBeanID(beanID)
+
+    def getFarmID(self) -> int:
+        return self.__farmID
+
+    def setFarmID(self, farmID: int):
+        self.__farmID = farmID
+
+    def getBeanID(self) -> int:
+        return self.__beanID
+
+    def setBeanID(self, beanID: int):
+        self.__beanID = beanID
+
+
+class CoffeePartyHasBean:
+    def __init__(self, coffeePartyID: int, beanID: int):
+        self.__coffeePartyID = None
+        self.__beanID = None
+
+        self.setCoffeePartyID(coffeePartyID)
+        self.setBeanID(beanID)
+
+    def getCoffeePartyID(self) -> int:
+        return self.__coffeePartyID
+
+    def setCoffeePartyID(self, coffeePartyID: int):
+        self.__coffeePartyID = coffeePartyID
+
+    def getBeanID(self) -> int:
+        return self.__beanID
+
+    def setBeanID(self, beanID: int):
+        self.__beanID = beanID
