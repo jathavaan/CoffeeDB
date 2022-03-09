@@ -329,6 +329,9 @@ class Tasting:
         self.__userID = None
         self.__roastedCoffeeID = None
 
+        if tastingID == 0:
+            tastingID = 999_999_999
+
         self.setTastingID(tastingID)
         self.setTasteNotes(tasteNotes)
         self.setPoints(points)

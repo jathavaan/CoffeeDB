@@ -1,21 +1,29 @@
 import sqlite3 as sql
+from datetime import datetime
 
-from model.classes import User
+from model.classes import User, Country, Tasting
 
 
 def initCon() -> sql:
+    """
+    Initialize connection
+    :return connection:
+    """
     return sql.connect('../coffeeDB.db')
 
 
 def createCursor(con: sql.Connection) -> sql.Cursor:
+    """
+    Creates cursor
+    :param con:
+    :return cursor:
+    """
     return con.cursor()
 
 
-def closeCon(con: sql.Connection):
-    con.close()
-
-
 class Insert:
+    """Insert data into DB"""
+
     def __init__(self):
         self.__con = initCon()
         self.__cursor = createCursor(self.__con)
@@ -29,25 +37,73 @@ class Insert:
     def insertCountry(self, countryName) -> bool:
         pass
 
-    def addUser(self, email: str, password: str, firstName: str, lastName: str, countryID: int):
+    def addUser(self, email: str, password: str, firstName: str, lastName: str, countryID: int) -> bool:
+        """
+        Adds user to DB
+
+        Checks if inputed data is valid through User class
+        Checks if email has already been registered
+
+        :param email:
+        :param password:
+        :param firstName:
+        :param lastName:
+        :param countryID:
+        :return:
+        """
         ret = Retrieve()
         email = email.lower()  # Email should be lowercase
         if ret.registeredEmail(email):
             raise ValueError("A user with this email has already been registered")
 
+        User(0, email, password, firstName, lastName, countryID)
         cursor = self.getCursor()
-        cursor.execute(
-            """
-            INSERT INTO User (email, password, firstName, surname, countryID) 
-            VALUES (?, ?, ?, ?, ?)
-            """, (email, password, firstName, lastName, countryID)
-        )
 
-        self.getCon().commit()
-        self.getCon().close()
+        try:
+            cursor.execute(
+                """
+                INSERT INTO User (email, password, firstName, surname, countryID) 
+                VALUES (?, ?, ?, ?, ?)
+                """, (email, password, firstName, lastName, countryID)
+            )
+            self.getCon().commit()
+            self.getCon().close()
+            return True
+        except Exception as e:
+            return False
+
+    def addTasting(self, tasteNotes: str, points: int, tastingDate: datetime.date, userID: int,
+                   roastedCoffeeID: int) -> bool:
+        """
+        Adds a tasting created by the user
+        :param tasteNotes:
+        :param points:
+        :param tastingDate:
+        :param userID:
+        :param roastedCoffeeID:
+        :return:
+        """
+        Tasting(0, tasteNotes, points, tastingDate, userID, roastedCoffeeID)  # Checks if inputed data is valid
+        cursor = self.getCursor()
+
+        try:
+            cursor.execute(
+                """
+                INSERT INTO Tasting (tasteNotes, points, tastingDate, userID, roastedCoffeeID)
+                VALUES (?, ?, ?, ?, ?)
+                """, (tasteNotes, points, tastingDate, userID, roastedCoffeeID)
+            )
+
+            self.getCon().commit()
+            self.getCon().close()
+            return True
+        except Exception as e:
+            return False
 
 
 class Retrieve:
+    """Retrieve data from DB"""
+
     def __init__(self):
         self.__con = initCon()
         self.__cursor = createCursor(self.__con)
@@ -59,6 +115,11 @@ class Retrieve:
         return self.__cursor
 
     def getUsers(self) -> list[User]:
+        """
+        Retrieve all data from DB
+
+        :return userList:
+        """
         userList = []
         cursor = self.getCursor()
 
@@ -71,7 +132,26 @@ class Retrieve:
 
         return userList
 
+    def getCountries(self) -> list[Country]:
+        """
+        Gets all countries
+        :return countryList:
+        """
+        countryList = []
+        cursor = self.getCursor()
+
+        for row in cursor.execute("SELECT * FROM Country"):
+            countryID, name = row
+            countryList.append(Country(countryID, name))
+
+        return countryList
+
     def registeredEmail(self, email: str) -> bool:
+        """
+        Checks if there are any equal emails in the DB
+        :param email:
+        :return bool:
+        """
         email = email.lower()
 
         cursor = self.getCursor()
@@ -89,6 +169,8 @@ class Retrieve:
 
 
 class Alter:
+    """Alter data in DB"""
+
     def __init__(self):
         self.__con = initCon()
         self.__cursor = createCursor(self.__con)
@@ -101,6 +183,8 @@ class Alter:
 
 
 class Delete:
+    """Deletes data from DB"""
+
     def __init__(self):
         self.__con = initCon()
         self.__cursor = createCursor(self.__con)
