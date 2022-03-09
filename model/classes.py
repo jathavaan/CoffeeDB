@@ -12,6 +12,13 @@ class User:
         self.__surname = None
         self.__countryID = None
 
+        """
+        There hasn't been generated any userIDs before all the user-data has been added to the DB. 
+        In that case input userID = 0, and which allows the program to reassign userID to 999 999 
+        """
+        if userID == 0:
+            userID = 999_999_999
+
         self.setUserID(userID)
         self.setEmail(email)
         self.setPassword(password)

@@ -47,8 +47,6 @@ class Insert:
         self.getCon().close()
 
 
-
-
 class Retrieve:
     def __init__(self):
         self.__con = initCon()
@@ -116,6 +114,7 @@ class Delete:
 
 ret = Retrieve()
 ins = Insert()
+
 try:
     ins.addUser("test@user.com", "TestUser1234", "Test", "User", 2)
 except Exception as e:
