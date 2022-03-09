@@ -1,5 +1,0 @@
-create table Species (
-	speciesID integer not null,
-	name varchar(45) not null,
-	primary key (speciesID)
-);

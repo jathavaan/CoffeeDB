@@ -1,8 +1,0 @@
-create table CoffeeParty (
-	coffeePartyID integer not null,
-	harvestYear integer not null,
-	kiloPrice integer not null,
-	processingMethodID integer not null,
-	primary key (coffeePartyID),
-	foreign key (processingMethodID) references ProcessingMethod (processingMethodID)
-);

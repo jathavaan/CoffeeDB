@@ -1,9 +1,0 @@
-create table Tasting (
-	tastingID integer not null,
-	tasteNotes text,
-	points integer,
-	tastingDate date,
-	userID integer not null,
-	primary key (tastingID),
-	foreign key (userID) references User (userID)
-);

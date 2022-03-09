@@ -1,5 +1,0 @@
-create table CoffeeRoastery (
-	roastaryID integer not null,
-	name varchar(45) not null,
-	primary key (roastaryID)
-);

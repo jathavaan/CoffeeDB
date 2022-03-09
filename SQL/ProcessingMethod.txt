@@ -1,6 +1,0 @@
-create table ProcessingMethod (
-	processingMethodID integer not null,
-	name varchar (45) not null,
-	description text,
-	primary key (processingMethodID)
-);

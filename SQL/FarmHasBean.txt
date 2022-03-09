@@ -1,7 +1,0 @@
-create table FarmHasBean (
-	farmID integer not null,
-	beanID integer not null,
-	primary key (farmID, beanID),
-	foreign key (farmID) references Farm (farmID),
-	foreign key (beanID) references Bean (beanID)
-);

@@ -73,6 +73,7 @@ create table RoastedCoffee (
 	roastedCoffeeID integer not null,
 	roastnessDegree varchar(45) not null,
 	kiloPrice integer not null,
+	description text,
 	roastaryID integer not null,
 	coffeePartyID integer not null,
 	roastedDate date not null,
