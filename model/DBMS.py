@@ -233,14 +233,14 @@ class Main():
             users = ret.getUsers()
             password = str(input("Enter password: "))
 
-            user = next(filter(lambda row: row.getEmail() == userInput and row.getPassword() == password, users))
+            user = list(filter(lambda row: row.getEmail() == userInput and row.getPassword() == password, users))
 
-            while not user:
+            while len(user) == 0:
                 password = str(input("Incorrect password! Try again: "))
-                user = next(filter(lambda row: row.getEmail() == userInput and row.getPassword() == password, users))
+                user = list(filter(lambda row: row.getEmail() == userInput and row.getPassword() == password, users))
 
             print("Logged in\n")
-            return user
+            return user[0]
         else:
             # If email is not in use
             email = userInput
@@ -254,12 +254,14 @@ class Main():
                 print(row.getName())
 
             countryInput = str(input("\nEnter country: "))
-            country = next(filter(lambda row: row.getName() == countryInput, ret.getCountries()))
+            country = list(filter(lambda row: row.getName() == countryInput, ret.getCountries()))
 
-            while not country:
+            while len(country) == 0:
                 # This does not work properly
                 countryInput = str(input("Could not find any matches. Enter a country: "))
-                country = next(filter(lambda row: row.getName() == countryInput, ret.getCountries()))
+                country = list(filter(lambda row: row.getName() == countryInput, ret.getCountries()))
+
+            country = country[0]
 
             ins.addUser(email, password, firstName, surname, country.getCountryID())
             print("\nUser registered")
@@ -289,11 +291,13 @@ class Main():
             print(f"\t=> {row['coffeeName']}")
 
         userInput = str(input("\nEnter desired coffee: "))
-        roastedCoffee = next(filter(lambda row: row['coffeeName'] == userInput, roasteryMatches))
+        roastedCoffee = list(filter(lambda row: row['coffeeName'] == userInput, roasteryMatches))
 
         if len(roastedCoffee) == 0:
             print("No matches")
             return
+
+        roastedCoffee = roastedCoffee[0]
 
         userID = user.getUserID()
         roastedCoffeeID = roastedCoffee['roastedCoffeeID']
