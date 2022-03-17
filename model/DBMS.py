@@ -167,6 +167,19 @@ class Retrieve:
 
         return len(result) > 0
 
+    def getCoffeeByValue(self) -> list[dict]:
+        query = """
+                select CoffeeRoastery.name, RoastedCoffee.name, RoastedCoffee.kiloPrice, avg(Tasting.points), RoastedCoffee.kiloPrice / avg(distinct Tasting.points) from Tasting
+                inner join RoastedCoffee on Tasting.roastedCoffeeID
+                inner join CoffeeRoastery on RoastedCoffee.roastaryID
+                where Tasting.roastedCoffeeID == RoastedCoffee.roastedCoffeeID
+                and CoffeeRoastery.roastaryID == RoastedCoffee.roastaryID
+                group by Tasting.roastedCoffeeID 
+                order by RoastedCoffee.kiloPrice / avg(distinct Tasting.points) desc
+                """
+
+
+
 
 class Alter:
     """Alter data in DB"""
@@ -194,15 +207,3 @@ class Delete:
 
     def getCursor(self) -> sql.Cursor:
         return self.__cursor
-
-
-ret = Retrieve()
-ins = Insert()
-
-try:
-    ins.addUser("test@user.com", "TestUser1234", "Test", "User", 2)
-except Exception as e:
-    print("Error:", e)
-
-for user in ret.getUsers():
-    print(user.getUserID(), "|", user.getFirstName(), user.getSurname())
