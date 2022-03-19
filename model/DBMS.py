@@ -150,16 +150,16 @@ class Retrieve:
         cursor = self.getCursor()
         result = []
 
-        query = """
+        for row in cursor.execute(
+                """
                 select distinct CoffeeRoastery.name, RoastedCoffee.name from Tasting
                 inner join RoastedCoffee on Tasting.roastedCoffeeID
                 inner join CoffeeRoastery on RoastedCoffee.roastaryID
                 where Tasting.roastedCoffeeID == RoastedCoffee.roastedCoffeeID
                 and RoastedCoffee.roastaryID == CoffeeRoastery.roastaryID
-                and (Tasting.tasteNotes like "%floral%" or RoastedCoffee.description like "%floral%")
-                """
-
-        for row in cursor.execute(query):
+                and (Tasting.tasteNotes like ? or RoastedCoffee.description like ?)
+                """, ("%" + search + "%", "%" + search + "%")
+        ):
             roasteryName, coffeeName = row
 
             data = {
@@ -224,8 +224,7 @@ class Delete:
 
 class Main:
     def bh4(self):
-        # userInput = str(input("Enter searchword: "))
-        userInput = ""
+        userInput = str(input("Enter searchword: "))
 
         ret = Retrieve()
         result = ret.getCoffeeByDescription(userInput)
@@ -234,7 +233,7 @@ class Main:
             print("\nNo matches")
             return
         else:
-            print("\nReturned the following results")
+            print("\nReturned the following result(s):")
             for row in result:
                 print(f"\t=> Roastery: {row['roasteryName']}\n\t=> Coffee: {row['coffeeName']}\n")
 
