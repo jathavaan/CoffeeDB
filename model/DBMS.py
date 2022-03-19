@@ -146,6 +146,32 @@ class Retrieve:
 
         return countryList
 
+    def getCoffeeByDescription(self, search: str) -> list[dict]:
+        cursor = self.getCursor()
+        result = []
+
+        query = """
+                select distinct CoffeeRoastery.name, RoastedCoffee.name from Tasting
+                inner join RoastedCoffee on Tasting.roastedCoffeeID
+                inner join CoffeeRoastery on RoastedCoffee.roastaryID
+                where Tasting.roastedCoffeeID == RoastedCoffee.roastedCoffeeID
+                and RoastedCoffee.roastaryID == CoffeeRoastery.roastaryID
+                and (Tasting.tasteNotes like "%floral%" or RoastedCoffee.description like "%floral%")
+                """
+
+        for row in cursor.execute(query):
+            roasteryName, coffeeName = row
+
+            data = {
+                "roasteryName": roasteryName,
+                "coffeeName": coffeeName
+            }
+
+            result.append(data)
+
+        self.getCon().commit()
+        return result
+
     def registeredEmail(self, email: str) -> bool:
         """
         Checks if there are any equal emails in the DB
@@ -196,13 +222,22 @@ class Delete:
         return self.__cursor
 
 
-ret = Retrieve()
-ins = Insert()
+class Main:
+    def bh4(self):
+        # userInput = str(input("Enter searchword: "))
+        userInput = ""
 
-try:
-    ins.addUser("test@user.com", "TestUser1234", "Test", "User", 2)
-except Exception as e:
-    print("Error:", e)
+        ret = Retrieve()
+        result = ret.getCoffeeByDescription(userInput)
 
-for user in ret.getUsers():
-    print(user.getUserID(), "|", user.getFirstName(), user.getSurname())
+        if len(result) == 0:
+            print("\nNo matches")
+            return
+        else:
+            print("\nReturned the following results")
+            for row in result:
+                print(f"\t=> Roastery: {row['roasteryName']}\n\t=> Coffee: {row['coffeeName']}\n")
+
+
+main = Main()
+main.bh4()
