@@ -188,6 +188,32 @@ class Retrieve:
 
         return len(result) > 0
 
+    def getUniqueTastings(self) -> list[dict]:
+        cursor = self.getCursor()
+        result = []
+
+        query = """
+                select User.firstName, User.surname, count(distinct Tasting.roastedCoffeeID) from Tasting
+                inner join User on Tasting.userID
+                where User.userID == Tasting.userID
+                group by Tasting.userID
+                order by count(Tasting.roastedCoffeeID) desc
+                """
+
+        for row in cursor.execute(query):
+            firstName, surname, count = row
+
+            data = {
+                "firstName": firstName,
+                "surname": surname,
+                "count": count
+            }
+
+            result.append(data)
+
+        self.getCon().commit()
+        return result
+
 
 class Alter:
     """Alter data in DB"""
@@ -317,6 +343,14 @@ class Main():
         except Exception as e:
             print("Error:", e)
 
+    def bh2(self):
+        ret = Retrieve()
+        result = ret.getUniqueTastings()
+
+        for row in result:
+            print(f"{row['firstName']} {row['surname']} has tasted {row['count']} unique coffees")
+
 
 main = Main()
 main.bh1()
+main.bh2()
