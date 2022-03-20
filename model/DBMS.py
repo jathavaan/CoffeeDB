@@ -181,6 +181,23 @@ class Retrieve:
                 and (Tasting.tasteNotes like ? or RoastedCoffee.description like ?)
                 """, ("%" + search + "%", "%" + search + "%")
         ):
+    def getCoffeeByCountryAndProcessingMethod(self) -> list[dict]:
+        cursor = self.getCursor()
+        result = []
+
+        query = """
+                select CoffeeRoastery.name, RoastedCoffee.name from RoastedCoffee
+                inner join CoffeeRoastery on RoastedCoffee.roastaryID == CoffeeRoastery.roastaryID
+                inner join CoffeeParty on RoastedCoffee.coffeePartyID == CoffeeParty.coffeePartyID
+                inner join Farm on CoffeeParty.producedFarmID == Farm.farmID
+                inner join Region on Farm.regionID == Region.regionID
+                inner join Country on Region.countryID == Country.countryID
+                inner join ProcessingMethod on CoffeeParty.processingMethodID == ProcessingMethod.processingMethodID
+                where (Country.name == "Rwanda" or Country.name == "Colombia") 
+                and ProcessingMethod.name != "Vasket"
+                """
+
+        for row in cursor.execute(query):
             roasteryName, coffeeName = row
 
             data = {
@@ -428,3 +445,19 @@ class Main():
             print("\nReturned the following result(s):")
             for row in result:
                 print(f"\t=> Roastery: {row['roasteryName']}\n\t=> Coffee: {row['coffeeName']}\n")
+class Main:
+    def bh4(self):
+        ret = Retrieve()
+        result = ret.getCoffeeByCountryAndProcessingMethod()
+
+        print("Got the following results:")
+        if len(result) == 0:
+            print("No matches")
+        else:
+            for row in result:
+                print("Roastery name:", row["roasteryName"])
+                print("Coffeename:", row["coffeeName"], "\n")
+
+
+main = Main()
+main.bh4()
