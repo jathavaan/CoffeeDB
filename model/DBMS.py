@@ -187,6 +187,35 @@ class Retrieve:
         self.getCon().commit()
 
         return len(result) > 0
+    
+    def getCoffeeByValue(self) -> list[dict]:
+        cursor = self.getCursor()
+        result = []
+
+        query = """
+                select CoffeeRoastery.name, RoastedCoffee.name, RoastedCoffee.kiloPrice, RoastedCoffee.kiloPrice / avg(distinct Tasting.points) from Tasting
+                inner join RoastedCoffee on Tasting.roastedCoffeeID
+                inner join CoffeeRoastery on RoastedCoffee.roastaryID
+                where Tasting.roastedCoffeeID == RoastedCoffee.roastedCoffeeID
+                and CoffeeRoastery.roastaryID == RoastedCoffee.roastaryID
+                group by Tasting.roastedCoffeeID 
+                order by RoastedCoffee.kiloPrice / avg(distinct Tasting.points) asc
+                """
+
+        for row in cursor.execute(query):
+            roasteryName, coffeeName, kiloPrice, score = row
+
+            data = {
+                "roasteryName": roasteryName,
+                "coffeeName": coffeeName,
+                "kiloPrice": kiloPrice,
+                "score": score
+            }
+
+            result.append(data)
+
+        self.getCon().commit()
+        return result
 
     def getUniqueTastings(self) -> list[dict]:
         cursor = self.getCursor()
@@ -354,3 +383,18 @@ class Main():
 main = Main()
 main.bh1()
 main.bh2()
+class Main:
+    def bh3(self):
+        ret = Retrieve()
+        result = ret.getCoffeeByValue()
+
+        print("Here are the coffees that got the highest score compared to price")
+        for row in result:
+            print("Roastery Name:", row["roasteryName"])
+            print("Coffee name:", row["coffeeName"])
+            print("Kilo price:", row["kiloPrice"])
+            print("Score:", round(row["score"], 2), "\n")
+
+
+main = Main()
+main.bh3()
