@@ -146,6 +146,35 @@ class Retrieve:
 
         return countryList
 
+    def getCoffeeByCountryAndProcessingMethod(self) -> list[dict]:
+        cursor = self.getCursor()
+        result = []
+
+        query = """
+                select CoffeeRoastery.name, RoastedCoffee.name from RoastedCoffee
+                inner join CoffeeRoastery on RoastedCoffee.roastaryID == CoffeeRoastery.roastaryID
+                inner join CoffeeParty on RoastedCoffee.coffeePartyID == CoffeeParty.coffeePartyID
+                inner join Farm on CoffeeParty.producedFarmID == Farm.farmID
+                inner join Region on Farm.regionID == Region.regionID
+                inner join Country on Region.countryID == Country.countryID
+                inner join ProcessingMethod on CoffeeParty.processingMethodID == ProcessingMethod.processingMethodID
+                where (Country.name == "Rwanda" or Country.name == "Colombia") 
+                and ProcessingMethod.name != "Vasket"
+                """
+
+        for row in cursor.execute(query):
+            roasteryName, coffeeName = row
+
+            data = {
+                "roasteryName": roasteryName,
+                "coffeeName": coffeeName
+            }
+
+            result.append(data)
+
+        self.getCon().commit()
+        return result
+
     def registeredEmail(self, email: str) -> bool:
         """
         Checks if there are any equal emails in the DB
@@ -196,13 +225,19 @@ class Delete:
         return self.__cursor
 
 
-ret = Retrieve()
-ins = Insert()
+class Main:
+    def bh4(self):
+        ret = Retrieve()
+        result = ret.getCoffeeByCountryAndProcessingMethod()
 
-try:
-    ins.addUser("test@user.com", "TestUser1234", "Test", "User", 2)
-except Exception as e:
-    print("Error:", e)
+        print("Got the following results:")
+        if len(result) == 0:
+            print("No matches")
+        else:
+            for row in result:
+                print("Roastery name:", row["roasteryName"])
+                print("Coffeename:", row["coffeeName"], "\n")
 
-for user in ret.getUsers():
-    print(user.getUserID(), "|", user.getFirstName(), user.getSurname())
+
+main = Main()
+main.bh4()
