@@ -1,100 +1,109 @@
-create table Country (
-	countryID integer not null,
-	name not null,
-	primary key (countryID)
+CREATE TABLE "Country" (
+	"countryID"	INTEGER NOT NULL,
+	"name"	 NOT NULL,
+	PRIMARY KEY("countryID" AUTOINCREMENT)
 );
 
-create table Region (
-	regionID integer not null,
-	name varchar(45) not null,
-	countryID integer not null,
-	primary key (regionID),
-	foreign key (countryID) references Country (countryID)
+CREATE TABLE "Region" (
+	"regionID"	INTEGER NOT NULL,
+	"name"	varchar(45) NOT NULL,
+	"countryID"	integer NOT NULL,
+	PRIMARY KEY("regionID" AUTOINCREMENT),
+	FOREIGN KEY("countryID") REFERENCES "Country"("countryID")
 );
 
-create table User (
-	userID integer not null,
-	email varchar(45) not null,
-	password varchar(45) not null,
-	firstName varchar(45) not null,
-	surname varchar(45) not null,
-	countryID integer not null,
-	primary key (userID),
-	foreign key (countryID) references Country (countryID)
+CREATE TABLE "User" (
+	"userID"	INTEGER NOT NULL,
+	"email"	varchar(45) NOT NULL,
+	"password"	varchar(45) NOT NULL,
+	"firstName"	varchar(45) NOT NULL,
+	"surname"	varchar(45) NOT NULL,
+	"countryID"	integer NOT NULL,
+	PRIMARY KEY("userID" AUTOINCREMENT),
+	FOREIGN KEY("countryID") REFERENCES "Country"("countryID")
 );
 
-create table Farm (
-	farmID integer not null,
-	name varchar(45) not null,
-	regionID integer not null,
-	primary key (farmID),
-	foreign key (regionID) references Region (regionID)
+CREATE TABLE "Farm" (
+	"farmID"	INTEGER NOT NULL,
+	"name"	varchar(45) NOT NULL,
+	"masl"	INTEGER NOT NULL,
+	"regionID"	integer NOT NULL,
+	FOREIGN KEY("regionID") REFERENCES "Region"("regionID"),
+	PRIMARY KEY("farmID" AUTOINCREMENT)
 );
 
-create table Species (
-	speciesID integer not null,
-	name varchar(45) not null,
-	primary key (speciesID)
+CREATE TABLE "Species" (
+	"speciesID"	INTEGER NOT NULL,
+	"name"	varchar(45) NOT NULL,
+	PRIMARY KEY("speciesID" AUTOINCREMENT)
 );
 
-create table Bean (
+CREATE TABLE "Bean" (
+	"beanID"	INTEGER NOT NULL,
+	"name"	varchar(45) NOT NULL,
+	"speciesID"	integer NOT NULL,
+	FOREIGN KEY("speciesID") REFERENCES "Species"("speciesID"),
+	PRIMARY KEY("beanID" AUTOINCREMENT)
+);
+
+CREATE TABLE "CoffeeRoastery" (
+	"roastaryID"	INTEGER NOT NULL,
+	"name"	varchar(45) NOT NULL,
+	PRIMARY KEY("roastaryID" AUTOINCREMENT)
+);
+
+CREATE TABLE "ProcessingMethod" (
+	"processingMethodID"	INTEGER NOT NULL,
+	"name"	varchar(45) NOT NULL,
+	"description"	text,
+	PRIMARY KEY("processingMethodID" AUTOINCREMENT)
+);
+
+CREATE TABLE "CoffeeParty" (
+	"coffeePartyID"	INTEGER NOT NULL,
+	"harvestYear"	integer NOT NULL,
+	"kiloPrice"	REAL NOT NULL,
+	"processingMethodID"	integer NOT NULL,
+	"producedFarmID"	integer NOT NULL,
+	PRIMARY KEY("coffeePartyID" AUTOINCREMENT),
+	FOREIGN KEY("processingMethodID") REFERENCES "ProcessingMethod"("processingMethodID"),
+	FOREIGN KEY("producedFarmID") REFERENCES "Farm"("farmID")
+);
+
+CREATE TABLE "RoastedCoffee" (
+	"roastedCoffeeID"	INTEGER NOT NULL,
+	"roastnessDegree"	varchar(45) NOT NULL,
+	"kiloPrice"	REAL NOT NULL,
+	"description"	text,
+	"roastaryID"	integer NOT NULL,
+	"coffeePartyID"	integer NOT NULL,
+	"roastedDate"	date NOT NULL,
+	FOREIGN KEY("roastaryID") REFERENCES "CoffeeRoastery"("roastaryID"),
+	FOREIGN KEY("coffeePartyID") REFERENCES "CoffeeParty"("coffeePartyID"),
+	PRIMARY KEY("roastedCoffeeID" AUTOINCREMENT)
+);
+
+CREATE TABLE "Tasting" (
+	"tastingID"	INTEGER NOT NULL,
+	"tasteNotes"	text,
+	"points"	integer NOT NULL,
+	"tastingDate"	date NOT NULL,
+	"userID"	integer NOT NULL,
+	"roastedCoffeeID"	integer NOT NULL,
+	FOREIGN KEY("userID") REFERENCES "User"("userID"),
+	FOREIGN KEY("roastedCoffeeID") REFERENCES "RoastedCoffee"("roastedCoffeeID"),
+	PRIMARY KEY("tastingID" AUTOINCREMENT)
+);
+
+CREATE TABLE CoffeePartyHasBean (
+	coffeePartyID integer not null,
 	beanID integer not null,
-	name varchar(45) not null,
-	speciesID integer not null,
-	primary key (beanID),
-	foreign key (speciesID) references Species (speciesID)
+	primary key (coffeePartyID, beanID),
+	foreign key (coffeePartyID) references CoffeeParty (coffeePartyID),
+	foreign key (beanID) references Bean (beanID)
 );
 
-create table ProcessingMethod (
-	processingMethodID integer not null,
-	name varchar (45) not null,
-	description text,
-	primary key (processingMethodID)
-);
-
-create table CoffeeParty (
-	coffeePartyID integer not null,
-	harvestYear integer not null,
-	kiloPrice integer not null,
-	processingMethodID integer not null,
-	producedFarmID integer not null,
-	primary key (coffeePartyID),
-	foreign key (processingMethodID) references ProcessingMethod (processingMethodID),
-	foreign key (producedFarmID) references Farm (farmID)
-);
-
-create table CoffeeRoastery (
-	roastaryID integer not null,
-	name varchar(45) not null,
-	primary key (roastaryID)
-);
-
-create table RoastedCoffee (
-	roastedCoffeeID integer not null,
-	roastnessDegree varchar(45) not null,
-	kiloPrice integer not null,
-	description text,
-	roastaryID integer not null,
-	coffeePartyID integer not null,
-	roastedDate date not null,
-	primary key (roastedCoffeeID),
-	foreign key (roastaryID) references CoffeeRoastery (roastaryID),
-	foreign key (coffeePartyID) references CoffeeParty (coffeePartyID)
-);
-
-create table Tasting (
-	tastingID integer not null,
-	tasteNotes text,
-	points integer,
-	tastingDate date,
-	userID integer not null,
-	roastedCoffeeID integer not null,
-	primary key (tastingID),
-	foreign key (userID) references User (userID),
-	foreign key (roastedCoffeeID) references RoastedCoffee (roastedCoffeeID)
-);
-
-create table FarmHasBean (
+CREATE TABLE FarmHasBean (
 	farmID integer not null,
 	beanID integer not null,
 	primary key (farmID, beanID),
@@ -102,10 +111,5 @@ create table FarmHasBean (
 	foreign key (beanID) references Bean (beanID)
 );
 
-create table CoffeePartyHasBean (
-	coffeePartyID integer not null,
-	beanID integer not null,
-	primary key (coffeePartyID, beanID),
-	foreign key (coffeePartyID) references CoffeeParty (coffeePartyID),
-	foreign key (beanID) references Bean (beanID)
-);
+
+

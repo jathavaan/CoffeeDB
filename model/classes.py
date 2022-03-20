@@ -199,9 +199,10 @@ class Species:
 
 
 class RoastedCoffee:
-    def __init__(self, roastedCoffeeID: int, roastnessDegree: str, kiloPrice: int, description: str, coffeePartyID: int,
-                 roastedDate: datetime.date, roasteryID: int):
+    def __init__(self, roastedCoffeeID: int, name: str, roastnessDegree: str, kiloPrice: float, description: str, coffeePartyID: int,
+                 roasteryID: int, roastedDate: datetime.date):
         self.__roastedCoffeeID = None
+        self.__name = None
         self.__roastnessDegree = None
         self.__kiloPrice = None
         self.__description = None
@@ -210,6 +211,7 @@ class RoastedCoffee:
         self.__roasteryID = None
 
         self.setRoastedCoffeeID(roastedCoffeeID)
+        self.setName(name)
         self.setRoastnessDegree(roastnessDegree)
         self.setKiloPrice(kiloPrice)
         self.setDescription(description)
@@ -222,6 +224,12 @@ class RoastedCoffee:
 
     def setRoastedCoffeeID(self, roastedCoffeeID: int):
         self.__roastedCoffeeID = roastedCoffeeID
+
+    def getName(self) -> str:
+        return self.__name
+
+    def setName(self, name: str):
+        self.__name = name
 
     def getRoastnessDegree(self) -> str:
         return self.__roastnessDegree

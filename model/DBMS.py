@@ -1,5 +1,5 @@
 import sqlite3 as sql
-from datetime import datetime
+from datetime import date
 
 from model.classes import User, Country, Tasting
 
@@ -66,14 +66,13 @@ class Insert:
                 VALUES (?, ?, ?, ?, ?)
                 """, (email, password, firstName, lastName, countryID)
             )
+
             self.getCon().commit()
-            self.getCon().close()
             return True
         except Exception as e:
             return False
 
-    def addTasting(self, tasteNotes: str, points: int, tastingDate: datetime.date, userID: int,
-                   roastedCoffeeID: int) -> bool:
+    def addTasting(self, tasteNotes: str, points: int, userID: int, roastedCoffeeID: int) -> bool:
         """
         Adds a tasting created by the user
         :param tasteNotes:
@@ -83,6 +82,7 @@ class Insert:
         :param roastedCoffeeID:
         :return:
         """
+        tastingDate = date.today()
         Tasting(0, tasteNotes, points, tastingDate, userID, roastedCoffeeID)  # Checks if inputed data is valid
         cursor = self.getCursor()
 
@@ -95,7 +95,6 @@ class Insert:
             )
 
             self.getCon().commit()
-            self.getCon().close()
             return True
         except Exception as e:
             return False
@@ -128,7 +127,6 @@ class Retrieve:
             userList.append(User(userID, email, password, firstName, surname, countryID))
 
         self.getCon().commit()
-        self.getCon().close()
 
         return userList
 
@@ -144,7 +142,31 @@ class Retrieve:
             countryID, name = row
             countryList.append(Country(countryID, name))
 
+        self.getCon().commit()
+
         return countryList
+
+    def getRoastedCoffees(self) -> list[dict]:
+        roastedCoffeeList = []
+        cursor = self.getCursor()
+
+        query = """
+                SELECT RoastedCoffee.roastedCoffeeID, RoastedCoffee.name, CoffeeRoastery.name FROM RoastedCoffee
+                INNER JOIN CoffeeRoastery on RoastedCoffee.roastaryID
+                WHERE RoastedCoffee.roastaryID == CoffeeRoastery.roastaryID
+                """
+
+        for row in cursor.execute(query):
+            roastedCoffeeID, coffeeName, roasteryName = row
+            result = {
+                "roastedCoffeeID": roastedCoffeeID,
+                "coffeeName": coffeeName,
+                "roasteryName": roasteryName
+            }
+            roastedCoffeeList.append(result)
+
+        self.getCon().commit()
+        return roastedCoffeeList
 
     def registeredEmail(self, email: str) -> bool:
         """
@@ -163,7 +185,6 @@ class Retrieve:
         ).fetchall()
 
         self.getCon().commit()
-        self.getCon().close()
 
         return len(result) > 0
 
@@ -196,13 +217,106 @@ class Delete:
         return self.__cursor
 
 
-ret = Retrieve()
-ins = Insert()
+class Main():
+    def __init__(self):
+        pass
 
-try:
-    ins.addUser("test@user.com", "TestUser1234", "Test", "User", 2)
-except Exception as e:
-    print("Error:", e)
+    def loginAndRegister(self):
+        userInput = str(input("Enter your email: "))
+        userInput = userInput.lower()
 
-for user in ret.getUsers():
-    print(user.getUserID(), "|", user.getFirstName(), user.getSurname())
+        ret = Retrieve()
+        ins = Insert()
+
+        if ret.registeredEmail(userInput):
+            # If email is already in use
+            users = ret.getUsers()
+            password = str(input("Enter password: "))
+
+            user = list(filter(lambda row: row.getEmail() == userInput and row.getPassword() == password, users))
+
+            while len(user) == 0:
+                password = str(input("Incorrect password! Try again: "))
+                user = list(filter(lambda row: row.getEmail() == userInput and row.getPassword() == password, users))
+
+            print("Logged in\n")
+            return user[0]
+        else:
+            # If email is not in use
+            email = userInput
+            password = str(input("Enter a password: "))
+            firstName = str(input("Enter your first name: "))
+            surname = str(input("Enter your surname: "))
+
+            print("\nSelect a country from the list of countries")
+
+            for row in ret.getCountries():
+                print(row.getName())
+
+            countryInput = str(input("\nEnter country: "))
+            country = list(filter(lambda row: row.getName() == countryInput, ret.getCountries()))
+
+            while len(country) == 0:
+                # This does not work properly
+                countryInput = str(input("Could not find any matches. Enter a country: "))
+                country = list(filter(lambda row: row.getName() == countryInput, ret.getCountries()))
+
+            country = country[0]
+
+            ins.addUser(email, password, firstName, surname, country.getCountryID())
+            print("\nUser registered")
+            self.loginAndRegister()
+
+    def bh1(self):
+        user = self.loginAndRegister()
+
+        ret = Retrieve()
+        ins = Insert()
+        result = ret.getRoastedCoffees()
+
+        print("Select a roastery from the list")
+
+        for row in result:
+            print(f"\t=> {row['roasteryName']}")
+
+        userInput = str(input("\nEnter desired roastery: "))
+        roasteryMatches = list(filter(lambda row: row['roasteryName'] == userInput, result))
+        if len(roasteryMatches) == 0:
+            print("No matches")
+            return
+
+        print(f"\nSelect a coffee from the roastery {userInput}")
+
+        for row in roasteryMatches:
+            print(f"\t=> {row['coffeeName']}")
+
+        userInput = str(input("\nEnter desired coffee: "))
+        roastedCoffee = list(filter(lambda row: row['coffeeName'] == userInput, roasteryMatches))
+
+        if len(roastedCoffee) == 0:
+            print("No matches")
+            return
+
+        roastedCoffee = roastedCoffee[0]
+
+        userID = user.getUserID()
+        roastedCoffeeID = roastedCoffee['roastedCoffeeID']
+
+        points = int(input("Enter points: "))
+
+        while not (0 <= points <= 10):
+            points = int(input("Points has to be between 0 and 10. Enter points: "))
+
+        tasteNote = str(input("Enter taste note: "))
+
+        try:
+            if ins.addTasting(tasteNote, points, userID, roastedCoffeeID):
+                print("\nAdded tasting")
+            else:
+                print("\nFailed to add tasting")
+        except Exception as e:
+            print("Error:", e)
+
+
+main = Main()
+main.bh1()
