@@ -167,6 +167,31 @@ class Retrieve:
 
         self.getCon().commit()
         return roastedCoffeeList
+    def getCoffeeByDescription(self, search: str) -> list[dict]:
+        cursor = self.getCursor()
+        result = []
+
+        for row in cursor.execute(
+                """
+                select distinct CoffeeRoastery.name, RoastedCoffee.name from Tasting
+                inner join RoastedCoffee on Tasting.roastedCoffeeID
+                inner join CoffeeRoastery on RoastedCoffee.roastaryID
+                where Tasting.roastedCoffeeID == RoastedCoffee.roastedCoffeeID
+                and RoastedCoffee.roastaryID == CoffeeRoastery.roastaryID
+                and (Tasting.tasteNotes like ? or RoastedCoffee.description like ?)
+                """, ("%" + search + "%", "%" + search + "%")
+        ):
+            roasteryName, coffeeName = row
+
+            data = {
+                "roasteryName": roasteryName,
+                "coffeeName": coffeeName
+            }
+
+            result.append(data)
+
+        self.getCon().commit()
+        return result
 
     def registeredEmail(self, email: str) -> bool:
         """
@@ -379,11 +404,6 @@ class Main():
         for row in result:
             print(f"{row['firstName']} {row['surname']} has tasted {row['count']} unique coffees")
 
-
-main = Main()
-main.bh1()
-main.bh2()
-class Main:
     def bh3(self):
         ret = Retrieve()
         result = ret.getCoffeeByValue()
@@ -395,6 +415,16 @@ class Main:
             print("Kilo price:", row["kiloPrice"])
             print("Score:", round(row["score"], 2), "\n")
 
+    def bh4(self):
+        userInput = str(input("Enter searchword: "))
 
-main = Main()
-main.bh3()
+        ret = Retrieve()
+        result = ret.getCoffeeByDescription(userInput)
+
+        if len(result) == 0:
+            print("\nNo matches")
+            return
+        else:
+            print("\nReturned the following result(s):")
+            for row in result:
+                print(f"\t=> Roastery: {row['roasteryName']}\n\t=> Coffee: {row['coffeeName']}\n")
