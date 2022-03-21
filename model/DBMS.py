@@ -167,6 +167,7 @@ class Retrieve:
 
         self.getCon().commit()
         return roastedCoffeeList
+
     def getCoffeeByDescription(self, search: str) -> list[dict]:
         cursor = self.getCursor()
         result = []
@@ -181,6 +182,18 @@ class Retrieve:
                 and (Tasting.tasteNotes like ? or RoastedCoffee.description like ?)
                 """, ("%" + search + "%", "%" + search + "%")
         ):
+            roasteryName, coffeeName = row
+
+            data = {
+                "roasteryName": roasteryName,
+                "coffeeName": coffeeName
+            }
+
+            result.append(data)
+
+        self.getCon().commit()
+        return result
+
     def getCoffeeByCountryAndProcessingMethod(self) -> list[dict]:
         cursor = self.getCursor()
         result = []
@@ -229,7 +242,7 @@ class Retrieve:
         self.getCon().commit()
 
         return len(result) > 0
-    
+
     def getCoffeeByValue(self) -> list[dict]:
         cursor = self.getCursor()
         result = []
@@ -333,8 +346,11 @@ class Main():
             user = list(filter(lambda row: row.getEmail() == userInput and row.getPassword() == password, users))
 
             while len(user) == 0:
-                password = str(input("Incorrect password! Try again: "))
-                user = list(filter(lambda row: row.getEmail() == userInput and row.getPassword() == password, users))
+                print("Incorrect email and password. Try again!")
+                email = str(input("Enter email: "))
+                password = str(input("Enter password: "))
+                user = list(
+                    filter(lambda row: row.getEmail() == email.lower() and row.getPassword() == password, users))
 
             print("Logged in\n")
             return user[0]
@@ -362,19 +378,27 @@ class Main():
 
             ins.addUser(email, password, firstName, surname, country.getCountryID())
             print("\nUser registered")
-            self.loginAndRegister()
+            return None
 
     def bh1(self):
         user = self.loginAndRegister()
+
+        if not user:
+            user = self.loginAndRegister()
 
         ret = Retrieve()
         ins = Insert()
         result = ret.getRoastedCoffees()
 
+        roasteries = []
+        for row in result:
+            if row["roasteryName"] not in roasteries:
+                roasteries.append(row["roasteryName"])
+
         print("Select a roastery from the list")
 
-        for row in result:
-            print(f"\t=> {row['roasteryName']}")
+        for roastery in roasteries:
+            print(f"\t=> {roastery}")
 
         userInput = str(input("\nEnter desired roastery: "))
         roasteryMatches = list(filter(lambda row: row['roasteryName'] == userInput, result))
@@ -419,18 +443,18 @@ class Main():
         result = ret.getUniqueTastings()
 
         for row in result:
-            print(f"{row['firstName']} {row['surname']} has tasted {row['count']} unique coffees")
+            print(f"\t=> {row['firstName']} {row['surname']} has tasted {row['count']} unique coffees")
 
     def bh3(self):
         ret = Retrieve()
         result = ret.getCoffeeByValue()
 
-        print("Here are the coffees that got the highest score compared to price")
+        print("Here are the coffees that got the highest score compared to price\n")
         for row in result:
-            print("Roastery Name:", row["roasteryName"])
-            print("Coffee name:", row["coffeeName"])
-            print("Kilo price:", row["kiloPrice"])
-            print("Score:", round(row["score"], 2), "\n")
+            print("\tRoastery Name:", row["roasteryName"])
+            print("\tCoffee name:", row["coffeeName"])
+            print("\tKilo price:", row["kiloPrice"])
+            print("\tScore:", round(row["score"], 2), "\n")
 
     def bh4(self):
         userInput = str(input("Enter searchword: "))
@@ -445,12 +469,12 @@ class Main():
             print("\nReturned the following result(s):")
             for row in result:
                 print(f"\t=> Roastery: {row['roasteryName']}\n\t=> Coffee: {row['coffeeName']}\n")
-class Main:
-    def bh4(self):
+
+    def bh5(self):
         ret = Retrieve()
         result = ret.getCoffeeByCountryAndProcessingMethod()
 
-        print("Got the following results:")
+        print("Showing unwashed coffees from Rwanda and Colombia: ")
         if len(result) == 0:
             print("No matches")
         else:
@@ -460,4 +484,13 @@ class Main:
 
 
 main = Main()
+print("Userstory 1")
+main.bh1()
+print("\nUserstory 2")
+main.bh2()
+print("\nUserstory 3")
+main.bh3()
+print("\nUserstory 4")
 main.bh4()
+print("\nUserstory 5")
+main.bh5()
