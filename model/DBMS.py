@@ -322,34 +322,6 @@ class Retrieve:
         return result
 
 
-class Alter:
-    """Alter data in DB"""
-
-    def __init__(self):
-        self.__con = initCon()
-        self.__cursor = createCursor(self.__con)
-
-    def getCon(self) -> sql.Connection:
-        return self.__con
-
-    def getCursor(self) -> sql:
-        return self.__cursor
-
-
-class Delete:
-    """Deletes data from DB"""
-
-    def __init__(self):
-        self.__con = initCon()
-        self.__cursor = createCursor(self.__con)
-
-    def getCon(self) -> sql.Connection:
-        return self.__con
-
-    def getCursor(self) -> sql.Cursor:
-        return self.__cursor
-
-
 class Main():
     def loginAndRegister(self):
         """
