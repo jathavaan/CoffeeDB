@@ -147,6 +147,10 @@ class Retrieve:
         return countryList
 
     def getRoastedCoffees(self) -> list[dict]:
+        """
+        Gets all roasted coffees added to the database
+        :return:
+        """
         roastedCoffeeList = []
         cursor = self.getCursor()
 
@@ -169,6 +173,11 @@ class Retrieve:
         return roastedCoffeeList
 
     def getCoffeeByDescription(self, search: str) -> list[dict]:
+        """
+        Returns all rows have a description or tastenote with the searchword that matches
+        :param search:
+        :return:
+        """
         cursor = self.getCursor()
         result = []
 
@@ -195,6 +204,10 @@ class Retrieve:
         return result
 
     def getCoffeeByCountryAndProcessingMethod(self) -> list[dict]:
+        """
+        Returns coffees from Rwanda or Colombia and are unwashed
+        :return:
+        """
         cursor = self.getCursor()
         result = []
 
@@ -244,17 +257,21 @@ class Retrieve:
         return len(result) > 0
 
     def getCoffeeByValue(self) -> list[dict]:
+        """
+        Gets a list off all coffees based on average score per 100 kroners
+        :return:
+        """
         cursor = self.getCursor()
         result = []
 
         query = """
-                select CoffeeRoastery.name, RoastedCoffee.name, RoastedCoffee.kiloPrice, RoastedCoffee.kiloPrice / avg(distinct Tasting.points) from Tasting
+                select CoffeeRoastery.name, RoastedCoffee.name, RoastedCoffee.kiloPrice, (avg(distinct Tasting.points) / RoastedCoffee.kiloPrice) * 100 from Tasting
                 inner join RoastedCoffee on Tasting.roastedCoffeeID
                 inner join CoffeeRoastery on RoastedCoffee.roastaryID
                 where Tasting.roastedCoffeeID == RoastedCoffee.roastedCoffeeID
                 and CoffeeRoastery.roastaryID == RoastedCoffee.roastaryID
                 group by Tasting.roastedCoffeeID 
-                order by RoastedCoffee.kiloPrice / avg(distinct Tasting.points) asc
+                order by (avg(distinct Tasting.points) / RoastedCoffee.kiloPrice) desc
                 """
 
         for row in cursor.execute(query):
@@ -273,6 +290,10 @@ class Retrieve:
         return result
 
     def getUniqueTastings(self) -> list[dict]:
+        """
+        Returns a list off the number of unique coffees each user has tasted
+        :return:
+        """
         cursor = self.getCursor()
         result = []
 
@@ -280,6 +301,8 @@ class Retrieve:
                 select User.firstName, User.surname, count(distinct Tasting.roastedCoffeeID) from Tasting
                 inner join User on Tasting.userID
                 where User.userID == Tasting.userID
+                and date(Tasting.tastingDate) >= date("2022-01-01")
+                and date(Tasting.tastingDate) < date("2023-01-01")
                 group by Tasting.userID
                 order by count(Tasting.roastedCoffeeID) desc
                 """
@@ -328,10 +351,11 @@ class Delete:
 
 
 class Main():
-    def __init__(self):
-        pass
-
     def loginAndRegister(self):
+        """
+        Allows user to login or register
+        :return:
+        """
         userInput = str(input("Enter your email: "))
         userInput = userInput.lower()
 
@@ -381,6 +405,10 @@ class Main():
             return None
 
     def bh1(self):
+        """
+        Userstory 1
+        :return:
+        """
         user = self.loginAndRegister()
 
         if not user:
@@ -402,6 +430,7 @@ class Main():
 
         userInput = str(input("\nEnter desired roastery: "))
         roasteryMatches = list(filter(lambda row: row['roasteryName'] == userInput, result))
+
         if len(roasteryMatches) == 0:
             print("No matches")
             return
@@ -439,6 +468,10 @@ class Main():
             print("Error:", e)
 
     def bh2(self):
+        """
+        Userstory 2
+        :return:
+        """
         ret = Retrieve()
         result = ret.getUniqueTastings()
 
@@ -446,6 +479,10 @@ class Main():
             print(f"\t=> {row['firstName']} {row['surname']} has tasted {row['count']} unique coffees")
 
     def bh3(self):
+        """
+        Userstory 3
+        :return:
+        """
         ret = Retrieve()
         result = ret.getCoffeeByValue()
 
@@ -454,15 +491,19 @@ class Main():
             print("\tRoastery Name:", row["roasteryName"])
             print("\tCoffee name:", row["coffeeName"])
             print("\tKilo price:", row["kiloPrice"])
-            print("\tScore:", round(row["score"], 2), "\n")
+            print("\tScore (per 100 NOK):", round(row["score"], 2), "\n")
 
     def bh4(self):
+        """
+        Userstory 4
+        :return:
+        """
         userInput = str(input("Enter searchword: "))
 
         ret = Retrieve()
         result = ret.getCoffeeByDescription(userInput)
 
-        if len(result) == 0:
+        if not userInput or len(result) == 0:
             print("\nNo matches")
             return
         else:
@@ -471,6 +512,10 @@ class Main():
                 print(f"\t=> Roastery: {row['roasteryName']}\n\t=> Coffee: {row['coffeeName']}\n")
 
     def bh5(self):
+        """
+        Userstory 5
+        :return:
+        """
         ret = Retrieve()
         result = ret.getCoffeeByCountryAndProcessingMethod()
 
@@ -479,8 +524,8 @@ class Main():
             print("No matches")
         else:
             for row in result:
-                print("Roastery name:", row["roasteryName"])
-                print("Coffeename:", row["coffeeName"], "\n")
+                print("\t=> Roastery name:", row["roasteryName"])
+                print("\t=> Coffeename:", row["coffeeName"], "\n")
 
 
 main = Main()
